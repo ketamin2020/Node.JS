@@ -25,7 +25,7 @@ async function removeContact(id) {
 
 async function addContact(name, email, phone) {
   const contacts = await listContacts();
-  const id = contacts[contacts.length - 1].id + 1;
+  const id = await generatorId(contacts);
   const newContactToAdd = { id, name, email, phone };
   await writeNewData([...contacts, newContactToAdd]);
   return newContactToAdd;
@@ -33,6 +33,11 @@ async function addContact(name, email, phone) {
 
 async function writeNewData(data) {
   return await fsPromises.writeFile(contactsPath, JSON.stringify(data));
+}
+
+async function generatorId(dataArr, idGen = 0) {
+  dataArr.forEach(({ id }) => (id > idGen ? (idGen = id) : idGen));
+  return idGen + 1;
 }
 
 module.exports = {
