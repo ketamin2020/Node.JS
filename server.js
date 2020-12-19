@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
-const userRouter = require("./users/contacts.routes");
+const userRouter = require("./contacts/contacts.routes");
 
 module.exports = class User {
   constructor() {
