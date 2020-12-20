@@ -6,50 +6,60 @@ const {
   updateContact,
 } = require("./contacts.models");
 const { notFound, deleted, noFields } = require("./contact.helpers");
+const { ErrorHandler } = require("./contact.errorHeandler");
 
 class ContactsController {
   async getContacts(req, res) {
     const contacts = await listContacts();
-    res.status(200).send(contacts);
+    return res.status(200).send(contacts);
   }
 
-  async getContactById(req, res) {
-    const id = parseInt(req.params.contactId);
-    const filteredContactById = await getContactById(id);
-    if (!filteredContactById.toString()) {
-      res.status(404).send(notFound);
+  async getContactById(req, res, next) {
+    try {
+      const id = parseInt(req.params.contactId);
+      const filteredContactById = await getContactById(id);
+      if (!filteredContactById) {
+        throw new ErrorHandler(notFound.message, 404);
+      }
+      return res.status(200).send(filteredContactById);
+    } catch (error) {
+      next(error);
     }
-    res.status(200).send(filteredContactById);
   }
 
-  async addContact(req, res) {
+  async createContact(req, res) {
     const addedContact = await addContact(req.body);
-    res.status(201).send(addedContact);
-  }
-  async removeContacts(req, res) {
-    const id = parseInt(req.params.contactId);
-    const findContact = await getContactById(id);
-
-    if (!findContact.toString()) {
-      res.status(404).send(notFound);
-      return;
-    }
-    removeContact(id);
-    res.status(200).send(deleted);
+    return res.status(201).send(addedContact);
   }
 
-  async updateContact(req, res) {
-    const id = parseInt(req.params.contactId);
-    const updateData = await updateContact(id, req.body);
-    if (updateData === null) {
-      res.status(400).send(noFields);
-      return;
+  async removeContacts(req, res, next) {
+    try {
+      const id = parseInt(req.params.contactId);
+      const findContact = await getContactById(id);
+      if (!findContact) {
+        throw new ErrorHandler(notFound.message, 404);
+      }
+      await removeContact(id);
+      return res.status(200).send(deleted);
+    } catch (error) {
+      next(error);
     }
-    if (!updateData) {
-      res.status(404).send(notFound);
-      return;
+  }
+
+  async patchContact(req, res, next) {
+    try {
+      const id = parseInt(req.params.contactId);
+      if (Object.keys(req.body).length === 0) {
+        throw new ErrorHandler(noFields.message, 400);
+      }
+      const updateData = await updateContact(id, req.body);
+      if (updateData) {
+        return res.status(200).send(updateData);
+      }
+      throw new ErrorHandler(notFound.message, 404);
+    } catch (error) {
+      next(error);
     }
-    res.status(200).send(updateData);
   }
 }
 

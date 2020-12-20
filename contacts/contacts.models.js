@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const { promises: fsPromises } = fs;
-const contactsPath = path.join(__dirname, "../db", "contact.json");
+const contactsPath = path.join(__dirname, "../", "db", "contact.json");
 
 async function listContacts() {
   const contacts = await fsPromises.readFile(contactsPath, "utf-8");
@@ -11,7 +11,7 @@ async function listContacts() {
 
 async function getContactById(id) {
   const contacts = await listContacts();
-  const findedUser = contacts.filter((contact) => contact.id === id);
+  const findedUser = contacts.find((contact) => contact.id === id);
   return findedUser;
 }
 
@@ -30,22 +30,15 @@ async function addContact({ name, email, phone }) {
 }
 
 async function updateContact(id, newData) {
-  if (Object.keys(newData).length === 0) {
-    return null;
-  }
-  return await reWriteDataInObj(id, newData);
-}
-
-async function reWriteDataInObj(id, newData) {
   const contacts = await listContacts();
   const contactIdx = contacts.findIndex((data) => data.id === id);
-  if (contactIdx !== -1) {
-    const newUpdateData = { ...contacts[contactIdx], ...newData };
-    contacts[contactIdx] = newUpdateData;
-    await writeNewData(contacts);
-    return newUpdateData;
+  if (contactIdx === -1) {
+    return;
   }
-  return false;
+  const newUpdateData = { ...contacts[contactIdx], ...newData };
+  contacts[contactIdx] = newUpdateData;
+  await writeNewData(contacts);
+  return newUpdateData;
 }
 
 async function writeNewData(data) {

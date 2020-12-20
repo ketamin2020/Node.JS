@@ -1,2 +1,2 @@
-const userServer = require("./server");
-new userServer().startServer();
+const ContactServer = require("./server");
+new ContactServer().startServer();

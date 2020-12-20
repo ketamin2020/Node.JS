@@ -1,4 +1,5 @@
 const Joi = require("joi");
+const { handleError, ErrorHandler } = require("./contact.errorHeandler");
 
 class ValidatorData {
   validateCreate(req, res, next) {
@@ -9,12 +10,9 @@ class ValidatorData {
     });
 
     const result = createContact.validate(req.body);
-
     if (result.error) {
-      res.status(400).send({ message: result.error.details[0].message });
-      return;
+      throw new ErrorHandler(result.error.details[0].message, 404);
     }
-
     next();
   }
 
@@ -28,10 +26,8 @@ class ValidatorData {
     const result = createContact.validate(req.body);
 
     if (result.error) {
-      res.status(400).send({ message: result.error.details[0].message });
-      return;
+      throw new ErrorHandler(result.error.details[0].message, 404);
     }
-
     next();
   }
 }
