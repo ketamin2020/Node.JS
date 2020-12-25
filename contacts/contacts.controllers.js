@@ -30,7 +30,7 @@ class ContactsController {
       const addedContact = await contactModel.create(req.body);
       return res.status(201).send(addedContact);
     } catch (error) {
-      next(eror);
+      next(error);
     }
   }
 

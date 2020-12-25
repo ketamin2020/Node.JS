@@ -8,7 +8,7 @@ class ValidatorData {
       email: Joi.string().email().min(1).required(),
       phone: Joi.string().min(4).required(),
       subscription: Joi.string(),
-      password: Joi.string(),
+      password: Joi.string().min(4).required(),
       token: Joi.string(),
     });
 
@@ -25,6 +25,7 @@ class ValidatorData {
       email: Joi.string().email().min(1),
       phone: Joi.string().min(4),
       password: Joi.string(),
+      subscription: Joi.string(),
     });
 
     const result = createContact.validate(req.body);
