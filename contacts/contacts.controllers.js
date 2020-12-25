@@ -1,45 +1,46 @@
-const {
-  listContacts,
-  getContactById,
-  removeContact,
-  addContact,
-  updateContact,
-} = require("./contacts.models");
-const { notFound, deleted, noFields } = require("./contact.helpers");
+const { notFound, deleted } = require("./contact.helpers");
 const { ErrorHandler } = require("./contact.errorHeandler");
+const contactModel = require("./contacts.models");
 
 class ContactsController {
-  async getContacts(req, res) {
-    const contacts = await listContacts();
-    return res.status(200).send(contacts);
-  }
-
-  async getContactById(req, res, next) {
+  async getContacts(req, res, next) {
     try {
-      const id = parseInt(req.params.contactId);
-      const filteredContactById = await getContactById(id);
-      if (!filteredContactById) {
-        throw new ErrorHandler(notFound.message, 404);
-      }
-      return res.status(200).send(filteredContactById);
+      const contacts = await contactModel.find();
+      return res.status(200).send(contacts);
     } catch (error) {
       next(error);
     }
   }
 
-  async createContact(req, res) {
-    const addedContact = await addContact(req.body);
-    return res.status(201).send(addedContact);
+  async getContactById(req, res, next) {
+    try {
+      const id = req.params.contactId;
+      const findContactById = await contactModel.findById(id);
+      if (!findContactById) {
+        throw new ErrorHandler(notFound.message, 404);
+      }
+      return res.status(200).send(findContactById);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async createContact(req, res, next) {
+    try {
+      const addedContact = await contactModel.create(req.body);
+      return res.status(201).send(addedContact);
+    } catch (error) {
+      next(eror);
+    }
   }
 
   async removeContacts(req, res, next) {
     try {
-      const id = parseInt(req.params.contactId);
-      const findContact = await getContactById(id);
-      if (!findContact) {
+      const id = req.params.contactId;
+      const removeContact = await contactModel.findByIdAndRemove(id);
+      if (!removeContact) {
         throw new ErrorHandler(notFound.message, 404);
       }
-      await removeContact(id);
       return res.status(200).send(deleted);
     } catch (error) {
       next(error);
@@ -48,15 +49,12 @@ class ContactsController {
 
   async patchContact(req, res, next) {
     try {
-      const id = parseInt(req.params.contactId);
-      if (Object.keys(req.body).length === 0) {
-        throw new ErrorHandler(noFields.message, 400);
+      const id = req.params.contactId;
+      const updateData = await contactModel.updateContact(id, req.body);
+      if (!updateData) {
+        throw new ErrorHandler(notFound.message, 404);
       }
-      const updateData = await updateContact(id, req.body);
-      if (updateData) {
-        return res.status(200).send(updateData);
-      }
-      throw new ErrorHandler(notFound.message, 404);
+      return res.status(200).send(updateData);
     } catch (error) {
       next(error);
     }

@@ -1,12 +1,15 @@
 const Joi = require("joi");
-const { handleError, ErrorHandler } = require("./contact.errorHeandler");
+const { ErrorHandler } = require("./contact.errorHeandler");
 
 class ValidatorData {
   validateCreate(req, res, next) {
     const createContact = Joi.object({
       name: Joi.string().min(1).required(),
       email: Joi.string().email().min(1).required(),
-      number: Joi.string().min(4).required(),
+      phone: Joi.string().min(4).required(),
+      subscription: Joi.string(),
+      password: Joi.string(),
+      token: Joi.string(),
     });
 
     const result = createContact.validate(req.body);
@@ -20,7 +23,8 @@ class ValidatorData {
     const createContact = Joi.object({
       name: Joi.string().min(1),
       email: Joi.string().email().min(1),
-      number: Joi.string().min(4),
+      phone: Joi.string().min(4),
+      password: Joi.string(),
     });
 
     const result = createContact.validate(req.body);
