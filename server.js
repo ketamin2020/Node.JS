@@ -1,22 +1,22 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const cors = require("cors");
 const morgan = require("morgan");
-require("dotenv").config();
+const { startDB } = require("./contacts/contact.helpers");
 const ContactRouter = require("./contacts/contacts.routes");
-const {
-  handleError,
-  ErrorHandler,
-} = require("./contacts/contact.errorHeandler");
+const { handleError } = require("./contacts/contact.errorHeandler");
+require("dotenv").config();
 
-module.exports = class Contact {
+module.exports = class ContactServer {
   constructor() {
     this.server = null;
   }
 
-  startServer() {
+  async startServer() {
     this.initServer();
     this.initMiddlwares();
     this.initRoutes();
+    await this.initStartDatabase();
     this.startListening();
   }
 
@@ -35,6 +35,21 @@ module.exports = class Contact {
   initRoutes() {
     this.server.use("/api/contacts", ContactRouter);
   }
+
+  async initStartDatabase() {
+    const options = {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      useCreateIndex: true,
+    };
+    try {
+      await mongoose.connect(process.env.MONGODB_URL, options);
+      console.log(startDB);
+    } catch (error) {
+      process.exit(1);
+    }
+  }
+
   startListening() {
     this.server.listen(process.env.PORT || 3000);
   }
