@@ -4,6 +4,7 @@ const cors = require("cors");
 const morgan = require("morgan");
 const { startDB } = require("./contacts/contact.helpers");
 const ContactRouter = require("./contacts/contacts.routes");
+const UserRouter = require("./auth/userAuth.router");
 const { handleError } = require("./contacts/contact.errorHeandler");
 require("dotenv").config();
 
@@ -34,6 +35,7 @@ module.exports = class ContactServer {
   }
   initRoutes() {
     this.server.use("/api/contacts", ContactRouter);
+    this.server.use("/api/auth", UserRouter);
   }
 
   async initStartDatabase() {

@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const mongoosePaginate = require("mongoose-paginate-v2");
 
 const contactSchema = new mongoose.Schema({
   name: { type: String, required: true },
@@ -8,6 +9,7 @@ const contactSchema = new mongoose.Schema({
   subscription: { type: String, default: "free" },
   token: { type: String, default: "" },
 });
+
 contactSchema.statics.updateContact = function (id, newData) {
   return this.findByIdAndUpdate(
     id,
@@ -19,5 +21,5 @@ contactSchema.statics.updateContact = function (id, newData) {
     }
   );
 };
-
+contactSchema.plugin(mongoosePaginate);
 module.exports = mongoose.model("Contact", contactSchema);

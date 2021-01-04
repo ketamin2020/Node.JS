@@ -6,11 +6,12 @@ const {
   createContact,
   removeContacts,
   patchContact,
+  getContactBySubsription,
 } = require("./contacts.controllers");
 
 const { validateCreate, validatePatch } = require("./contacts.validator");
 
-contactRouter.get("/", getContacts);
+contactRouter.get("/", getContactBySubsription, getContacts);
 
 contactRouter.get("/:contactId", getContactById);
 
