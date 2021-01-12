@@ -1,7 +1,7 @@
-const { ErrorHandler } = require("./userAuthErrorHeandler");
+const { ErrorHandler } = require("../../helpers/errorHeandler");
 const Joi = require("joi");
-class ValidatorData {
-  validateCreate(req, res, next) {
+class ValidateData {
+  validateUser(req, res, next) {
     const createContact = Joi.object({
       email: Joi.string().email().min(1).required(),
       password: Joi.string().min(4).required(),
@@ -15,4 +15,4 @@ class ValidatorData {
   }
 }
 
-module.exports = new ValidatorData();
+module.exports = new ValidateData();

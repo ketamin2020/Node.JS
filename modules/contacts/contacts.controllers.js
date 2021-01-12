@@ -1,6 +1,6 @@
-const { notFound, deleted } = require("./contact.helpers");
-const { ErrorHandler } = require("./contact.errorHeandler");
-const contactModel = require("./contacts.models");
+const { notFound, deleted } = require("../../helpers/messageErrorText");
+const { ErrorHandler } = require("../../helpers/errorHeandler");
+const contactModel = require("../contacts/contacts.models");
 
 class ContactsController {
   async getContactBySubsription(req, res, next) {
