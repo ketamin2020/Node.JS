@@ -13,6 +13,18 @@ class ValidateData {
     }
     next();
   }
+
+  validateSubscription(req, res, next) {
+    const validate = Joi.object({
+      subscription: Joi.object().valid("free", "pro", "premium").required(),
+    });
+
+    const result = validate.validate(req.body);
+    if (result.error) {
+      throw new ErrorHandler(result.error.details[0].message, 400);
+    }
+    next();
+  }
 }
 
 module.exports = new ValidateData();

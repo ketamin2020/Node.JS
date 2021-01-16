@@ -12,35 +12,27 @@ const userSchema = new mongoose.Schema({
     default: "free",
   },
 });
-
-userSchema.statics.updateToken = async function (id, newToken) {
-  return this.findByIdAndUpdate(id, { token: newToken });
-};
-
-userSchema.statics.checkingPassword = async function (requestPass, userPass) {
-  return await bcrypt.compare(requestPass, userPass);
-};
-
-userSchema.statics.doHashPasswordAndCreateUser = async function (data) {
-  const hashPassword = await bcrypt.hash(data.password, 6);
-  const newUser = await this.create({
-    ...data,
-    password: hashPassword,
+userSchema.methods.updateToken = async function (newToken) {
+  return await this.model("User").findByIdAndUpdate(this.id, {
+    token: newToken,
   });
-  return newUser;
 };
 
-userSchema.statics.createAndUpdateToken = async function (userId) {
-  const newToken = await jwt.sign({ id: userId }, process.env.JWT_SECRET, {
+userSchema.methods.checkingPassword = async function (requestPass) {
+  return await bcrypt.compare(requestPass, this.password);
+};
+
+userSchema.methods.createAndUpdateToken = async function () {
+  const newToken = await jwt.sign({ id: this.id }, process.env.JWT_SECRET, {
     expiresIn: 60 * 60,
   });
-  await this.findByIdAndUpdate(userId, { token: newToken });
+  await this.model("User").findByIdAndUpdate(this.id, { token: newToken });
   return newToken;
 };
 
-userSchema.statics.updateSub = function (id, newData) {
-  return this.findByIdAndUpdate(
-    id,
+userSchema.methods.updateSub = async function (newData) {
+  return await this.model("User").findByIdAndUpdate(
+    this.id,
     {
       $set: { subscription: newData },
     },
