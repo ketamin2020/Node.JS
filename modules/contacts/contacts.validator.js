@@ -1,5 +1,5 @@
 const Joi = require("joi");
-const { ErrorHandler } = require("./contact.errorHeandler");
+const { ErrorHandler } = require("../../helpers/errorHeandler");
 
 class ValidatorData {
   validateCreate(req, res, next) {

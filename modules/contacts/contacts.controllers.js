@@ -1,12 +1,29 @@
-const { notFound, deleted } = require("./contact.helpers");
-const { ErrorHandler } = require("./contact.errorHeandler");
-const contactModel = require("./contacts.models");
+const { notFound, deleted } = require("../../helpers/messageErrorText");
+const { ErrorHandler } = require("../../helpers/errorHeandler");
+const contactModel = require("../contacts/contacts.models");
 
 class ContactsController {
+  async getContactBySubsription(req, res, next) {
+    try {
+      if (!req.query.sub) {
+        next();
+      }
+      const sortData = await contactModel.find({
+        subscription: req.query.sub,
+      });
+      if (sortData.length === 0) {
+        throw new ErrorHandler(notFound.message, 404);
+      }
+      return res.status(200).send(sortData);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async getContacts(req, res, next) {
     try {
-      const contacts = await contactModel.find();
-      return res.status(200).send(contacts);
+      const contact = await contactModel.paginate({}, req.query);
+      return res.status(200).send(contact);
     } catch (error) {
       next(error);
     }
