@@ -4,8 +4,7 @@ const cors = require("cors");
 const morgan = require("morgan");
 const ContactRouter = require("./modules/contacts/contacts.routes");
 const UserRouter = require("./modules/users/users.router");
-const { handleError } = require("./helpers/errorHeandler");
-require("dotenv").config({ path: "./config/.env" });
+require("dotenv").config();
 
 module.exports = class ContactServer {
   constructor() {
@@ -14,9 +13,9 @@ module.exports = class ContactServer {
 
   async startServer() {
     this.initServer();
+    await this.initStartDatabase();
     this.initMiddlwares();
     this.initRoutes();
-    await this.initStartDatabase();
     this.startListening();
   }
 
@@ -28,9 +27,6 @@ module.exports = class ContactServer {
     this.server.use(express.json());
     this.server.use(morgan("dev"));
     this.server.use(cors({ origin: "http://localhost:3000" }));
-    this.server.use((err, req, res, next) => {
-      handleError(err, res);
-    });
   }
   initRoutes() {
     this.server.use("/api/contacts", ContactRouter);
@@ -45,12 +41,15 @@ module.exports = class ContactServer {
     };
     try {
       await mongoose.connect(process.env.MONGODB_URL, options);
+      console.log("the database started working");
     } catch (error) {
       process.exit(1);
     }
   }
 
   startListening() {
-    this.server.listen(process.env.PORT);
+    this.server.listen(process.env.PORT, () => {
+      console.log(`Server started listening on ${process.env.PORT} port`);
+    });
   }
 };

@@ -13,7 +13,7 @@ const userSchema = new mongoose.Schema({
   },
 });
 userSchema.methods.updateToken = async function (newToken) {
-  return await this.model("User").findByIdAndUpdate(this.id, {
+  return await this.model("User").findByIdAndUpdate(this._id, {
     token: newToken,
   });
 };
