@@ -25,6 +25,7 @@ userRouter.patch(
 );
 userRouter.patch(
   "/users/avatars",
+  authorize,
   multer.single("avatar"),
   minifyImage,
   replaceAvatar
