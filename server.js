@@ -24,6 +24,7 @@ module.exports = class ContactServer {
   }
 
   initMiddlwares() {
+    this.server.use(express.static("public"));
     this.server.use(express.json());
     this.server.use(morgan("dev"));
     this.server.use(cors({ origin: "http://localhost:3000" }));

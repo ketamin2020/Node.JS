@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   token: { type: String, default: "" },
+  avatarURL: { type: String },
   subscription: {
     type: String,
     enum: ["free", "pro", "premium"],
@@ -15,6 +16,11 @@ const userSchema = new mongoose.Schema({
 userSchema.methods.updateToken = async function (newToken) {
   return await this.model("User").findByIdAndUpdate(this._id, {
     token: newToken,
+  });
+};
+userSchema.methods.updateAvatar = async function (newAvatarURL) {
+  return await this.model("User").findByIdAndUpdate(this._id, {
+    avatarURL: newAvatarURL,
   });
 };
 

@@ -1,6 +1,8 @@
 const bcrypt = require("bcryptjs");
 const userModel = require("./users.model");
+const { promises: fsPromises } = require("fs");
 const { ErrorHandler } = require("../../helpers/errorHeandler");
+const generateAvatar = require("../../helpers/avatarGenerator");
 const {
   notAuth,
   usedEmail,
@@ -16,13 +18,20 @@ class UserController {
       if (user) {
         return res.status(409).send({ message: usedEmail });
       }
+      const avatarURL = await generateAvatar();
       const passwordHash = await bcrypt.hash(password, 6);
       const newUser = await userModel.create({
         ...req.body,
         password: passwordHash,
+        avatarURL: avatarURL.filePath,
       });
+      await fsPromises.unlink(avatarURL.dest);
       return res.status(201).send({
-        user: { email: newUser.email, subscription: newUser.subscription },
+        user: {
+          email: newUser.email,
+          subscription: newUser.subscription,
+          avatar: avatarURL.filePath,
+        },
       });
     } catch (error) {
       next(error);
@@ -88,6 +97,15 @@ class UserController {
     } catch (error) {
       next(error);
     }
+  }
+
+  async replaceAvatar(req, res, next) {
+    try {
+      await req.user.updateAvatar(req.file.path);
+    } catch (err) {
+      next(err);
+    }
+    res.status(200).send({ avatarURL: req.file.path });
   }
 }
 
