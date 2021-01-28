@@ -1,23 +1,23 @@
 const avatarGenerator = require("js-image-generator");
 const ErrorHeandler = require("./errorHeandler");
-const fs = require("fs");
+const { promises: fsPromises } = require("fs");
+const path = require("path");
 
-async function geterateAvatar() {
-  const dest = `tmp/avatar.jpeg`;
-  const filePath = `public/images/${Date.now()}.jpeg`;
+async function geterateAvatar(protocol, hostname) {
+  const fileName = `${Date.now()}.jpg`;
+  const avatarPath = path.join("tmp", fileName);
+  const dest = path.join("public", "images", fileName);
   await avatarGenerator.generateImage(100, 100, 80, cb);
-
   async function cb(error, image) {
     if (error) {
       return new ErrorHeandler(error, 401);
     }
-    await fs.writeFileSync(dest, image.data);
-    const tempFile = await fs.createReadStream(dest);
-    const imageFile = await fs.createWriteStream(filePath);
-    tempFile.pipe(imageFile);
+    await fsPromises.writeFile(avatarPath, image.data);
+    await fsPromises.copyFile(avatarPath, dest);
+    await fsPromises.unlink(avatarPath);
   }
 
-  return { dest, filePath };
+  return `${protocol}://${hostname}:${process.env.PORT}/images/${fileName}`;
 }
 
 module.exports = geterateAvatar;

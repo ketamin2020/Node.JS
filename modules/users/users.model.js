@@ -18,10 +18,20 @@ userSchema.methods.updateToken = async function (newToken) {
     token: newToken,
   });
 };
-userSchema.methods.updateAvatar = async function (newAvatarURL) {
-  return await this.model("User").findByIdAndUpdate(this._id, {
-    avatarURL: newAvatarURL,
-  });
+userSchema.statics.updateAvatar = async function (req) {
+  const { filename } = req.file;
+  const { protocol, hostname, user } = req;
+  return await this.findByIdAndUpdate(
+    user._id,
+    {
+      $set: {
+        avatarURL: `${protocol}://${hostname}:${process.env.PORT}/images/${filename}`,
+      },
+    },
+    {
+      new: true,
+    }
+  );
 };
 
 userSchema.methods.checkingPassword = async function (requestPass) {
