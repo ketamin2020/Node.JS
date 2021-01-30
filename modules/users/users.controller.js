@@ -101,30 +101,11 @@ class UserController {
   }
 
   async replaceAvatar(req, res, next) {
-    const { filename } = req.file;
-
-    const updatedUser = await userModel.findByIdAndUpdate(
-      req.user._id,
-      {
-        $set: {
-          avatarUrl: `http://localhost:${process.env.PORT}/images/${filename}`,
-        },
-      },
-      {
-        new: true,
-      }
-    );
+    const updatedUser = await userModel.updateAvatar(req);
+    if (!updatedUser) {
+      throw new ErrorHandler(userNotFound, 400);
+    }
     return res.status(200).send({ avatarURL: updatedUser.avatarURL });
-    // try {
-    //   const update = await req.updateAvatar();
-
-    //   if (!update) {
-    //     throw new ErrorHandler(userNotFound, 400);
-    //   }
-    // } catch (err) {
-    //   next(err);
-    // }
-    // return res.status(200).send({ update });
   }
 }
 
