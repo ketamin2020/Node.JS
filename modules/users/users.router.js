@@ -6,8 +6,11 @@ const {
   userLogout,
   currentUserByToken,
   updateUserSubscription,
+  replaceAvatar,
 } = require("./users.controller");
 const authorize = require("../../middlewares/authorize");
+const multer = require("../../middlewares/multerStorage");
+const minifyImage = require("../../middlewares/minifyImages");
 const { validateUser, validateSubscription } = require("./users.validator");
 
 userRouter.post("/register", validateUser, createNewUser);
@@ -19,6 +22,13 @@ userRouter.patch(
   authorize,
   validateSubscription,
   updateUserSubscription
+);
+userRouter.patch(
+  "/users/avatars",
+  authorize,
+  multer.single("avatar"),
+  minifyImage,
+  replaceAvatar
 );
 
 module.exports = userRouter;

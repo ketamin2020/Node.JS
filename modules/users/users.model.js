@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   token: { type: String, default: "" },
+  avatarURL: { type: String },
   subscription: {
     type: String,
     enum: ["free", "pro", "premium"],
@@ -16,6 +17,21 @@ userSchema.methods.updateToken = async function (newToken) {
   return await this.model("User").findByIdAndUpdate(this._id, {
     token: newToken,
   });
+};
+userSchema.statics.updateAvatar = async function (req) {
+  const { filename } = req.file;
+  const { protocol, hostname, user } = req;
+  return await this.findByIdAndUpdate(
+    user._id,
+    {
+      $set: {
+        avatarURL: `${protocol}://${hostname}:${process.env.PORT}/images/${filename}`,
+      },
+    },
+    {
+      new: true,
+    }
+  );
 };
 
 userSchema.methods.checkingPassword = async function (requestPass) {
