@@ -7,6 +7,7 @@ const {
   currentUserByToken,
   updateUserSubscription,
   replaceAvatar,
+  verificationEmail,
 } = require("./users.controller");
 const authorize = require("../../middlewares/authorize");
 const multer = require("../../middlewares/multerStorage");
@@ -30,5 +31,6 @@ userRouter.patch(
   minifyImage,
   replaceAvatar
 );
+userRouter.get("/verify/:token", verificationEmail);
 
 module.exports = userRouter;

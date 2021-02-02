@@ -12,7 +12,29 @@ const userSchema = new mongoose.Schema({
     enum: ["free", "pro", "premium"],
     default: "free",
   },
+  verificationToken: { type: String, required: true },
+  status: { type: String, enum: ["Verified", "Created"], default: "Created" },
 });
+
+userSchema.methods.verifiedUser = async function () {
+  return await this.model("User").findByIdAndUpdate(
+    this._id,
+    {
+      status: "Verified",
+      verificationToken: null,
+    },
+    {
+      new: true,
+    }
+  );
+};
+
+userSchema.statics.findeUserByVerificationToken = async function (
+  verificationToken
+) {
+  return await this.findOne({ verificationToken });
+};
+
 userSchema.methods.updateToken = async function (newToken) {
   return await this.model("User").findByIdAndUpdate(this._id, {
     token: newToken,
