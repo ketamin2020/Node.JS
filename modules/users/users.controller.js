@@ -1,5 +1,6 @@
 const bcrypt = require("bcryptjs");
 const userModel = require("./users.model");
+const emailVerificationSender = require("../../helpers/mailSender");
 const { ErrorHandler } = require("../../helpers/errorHeandler");
 const generateAvatar = require("../../helpers/avatarGenerator");
 const {
@@ -8,10 +9,10 @@ const {
   userNotFound,
   dataWrong,
 } = require("../../helpers/messageErrorText");
+const uuid = require("uuid");
 
 class UserController {
   async createNewUser(req, res, next) {
-    console.log(req);
     const { email, password } = req.body;
     const { protocol, hostname } = req;
 
@@ -22,11 +23,14 @@ class UserController {
       }
       const avatarURL = await generateAvatar(protocol, hostname);
       const passwordHash = await bcrypt.hash(password, 6);
+      const verificationToken = await uuid.v4();
       const newUser = await userModel.create({
         ...req.body,
         password: passwordHash,
         avatarURL,
+        verificationToken,
       });
+      await emailVerificationSender(newUser.email, newUser.verificationToken);
       return res.status(201).send({
         user: {
           email: newUser.email,
@@ -43,7 +47,7 @@ class UserController {
     const { password, email } = req.body;
     try {
       const user = await userModel.findOne({ email });
-      if (!user) {
+      if (!user || user.status !== "Verified") {
         throw new ErrorHandler(userNotFound, 400);
       }
       const isValidPassword = await user.checkingPassword(password);
@@ -106,6 +110,22 @@ class UserController {
       throw new ErrorHandler(userNotFound, 400);
     }
     return res.status(200).send({ avatarURL: updatedUser.avatarURL });
+  }
+
+  async verificationEmail(req, res, next) {
+    try {
+      const { token } = req.params;
+
+      const user = await userModel.findeUserByVerificationToken(token);
+
+      if (!user) {
+        throw new ErrorHandler(userNotFound, 400);
+      }
+      await user.verifiedUser();
+      return res.status(200).send("User was verified");
+    } catch (error) {
+      next(error);
+    }
   }
 }
 
